@@ -5,7 +5,8 @@ var Schema = mongoose.Schema;
 
 var Course = new Schema({
     courseId: {
-        type: String,
+        type: Number,
+        index: true,
         required: [true, 'course id is required']
     },
 
@@ -14,12 +15,25 @@ var Course = new Schema({
         required: [true, 'Total number of seats  is required']
     },
 
+    sections : {
+        type :
+            [{
+                title               : {type : String},
+                totalSeats          : {type : Number},
+                enrolledStudents    : {type : [Number] }
+
+            }
+        ]
+
+    },
+
     enrolledStudents : {
         type : [Number]
     }
 });
 
 // User.plugin(passportLocalMongoose);
+
 
 
 module.exports = mongoose.model('course', Course);

@@ -41,9 +41,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/courses', coursesRouter);
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
+// app.use('/courses', coursesRouter);
+
+const apiRoutes= require('./routes/api/api')
+app.use('/api',apiRoutes);
+
+
+// not found route
+
+app.use('*', function(req, res){
+    res.status(404).send({message : 'Not found! Route and this method not configured '});
+});
+
 
 
 // catch 404 and forward to error handler
