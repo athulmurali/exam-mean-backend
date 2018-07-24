@@ -32,10 +32,10 @@ var User = new Schema({
             required: [true, 'phone number is required']
     },
     dob : Date,
-    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
+    // timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
 // User.plugin(passportLocalMongoose);
 
 
-module.exports = mongoose.model('users', User);
+module.exports = mongoose.model('user', User);
