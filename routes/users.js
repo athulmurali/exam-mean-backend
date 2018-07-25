@@ -15,15 +15,17 @@ router.post('/register', function(req, res, next) {
     console.log(req.body)
 
 
-    const currentUser = {
-        username: "avxass",
-        email: "athulmurali@gmail.com",
-        firstName: "Athul",
-        lastName: "Muralidharan",
-        password: "abcd1234",
-        phone:123456,
-        dob: Date.now()
-    }
+    // let currentUser = {
+    //     username: "avxass",
+    //     email: "athulmurali@gmail.com",
+    //     firstName: "Athul",
+    //     lastName: "Muralidharan",
+    //     password: "abcd1234",
+    //     phone:123456,
+    //     dob: Date.now()
+    // }
+
+    var currentUser = req.body
 
     User.findOne(   {$or:[   {_id: "5b562f1a9bdf5108d8c4cb1e"},
                         {_id: "5b562f1a9bdf5108d8c4cb1d"}]}
