@@ -1,9 +1,7 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-// var passportLocalMongoose = require('passport-local-mongoose');
 
-
-var Course = new Schema({
+const Section = require('./section')
+var Course =  mongoose.Schema({
     courseId: {
         type: Number,
         index: true,
@@ -15,17 +13,12 @@ var Course = new Schema({
         required: [true, 'Total number of seats  is required']
     },
 
-    sections : {
-        type :
-            [{
-                title               : {type : String},
-                totalSeats          : {type : Number},
-                enrolledStudents    : {type : [Number] }
-
-            }
-        ]
-
-    },
+    sections : [
+        {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'section'
+        }
+    ],
 
     enrolledStudents : {
         type : [Number]
