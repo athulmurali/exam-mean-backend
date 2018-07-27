@@ -101,7 +101,6 @@ router.post('/course/:courseId/section', validateCourseId,(req,res,next) => {
 // GET
 // /api/course/:courseId/section
 // Retrieves all the sections for a given course
-
 router.get('/course/:courseId/section', validateCourseId,(req,res,next) => {
         console.log("Current path:  " + req.originalUrl)
 
@@ -129,9 +128,10 @@ router.get('/course/:courseId/section', validateCourseId,(req,res,next) => {
 // GET
 // /api/section/:sectionId
 // Retrieves a section by its id
-router.get('/section/:sectionId', (req,res,next) => {
+router.get('/section/:sectionId', validateSectionId,(req,res,next) => {
     console.log("Current path:  "  + req.originalUrl)
-    res.send({message : "route found success!"})
+    // res.send({message : "route found success!"}
+    res.send(req.section)
 })
 
 
@@ -140,11 +140,15 @@ router.get('/section/:sectionId', (req,res,next) => {
 // /api/section/:sectionId
 // Updates a section
 router.put('/section/:sectionId', validateSectionId,(req,res,next) => {
-        console.log("Current path:  " + req.originalUrl)
+        console.log("Current path:  " + req.originalUrl);
 
+        console.log("section in req : ");
+        console.log(req.section)
         req.section.title                   = req.body.title;
         req.section.totalSeats              = req.body.totalSeats;
-        req.section.enrolledStudents        = req.body.enrolledStudents;
+
+        // req.section.enrolledStudents        = req.body.enrolledStudents;
+
 
         req.section.save().then(savedSection => {
             console.log("saved section  ")
@@ -179,18 +183,6 @@ router.delete('/course/:courseId/section/:sectionId',  (req,res,next) => {
     console.log("Current path:  "  + req.originalUrl)
     res.send({message : "route found success!"})
 
-    //
-    // Course.findOne({courseId : req.course.courseId}).then(course=>{
-    //     if (course) {
-    //         course.sections.filter((section) => {
-    //             section._id != section
-    //         })
-    //     }
-    //     else
-    //     {
-    //
-    //     }
-    // })
 })
 
 

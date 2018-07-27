@@ -5,6 +5,13 @@ const   SALT_WORK_FACTOR = 10;
 
 // var passportLocalMongoose = require('passport-local-mongoose');
 
+const Roles = Object.freeze({
+    Admin           : 'admin',
+    Student         : 'student',
+    Faculty         : 'faculty',
+});
+
+
 
 const UserSchema = new Schema({
     username: {
@@ -38,8 +45,16 @@ const UserSchema = new Schema({
     dob : Date,
     // timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 
-    enrolledSections    : {type : [Number] ,default : []}
+    enrolledSections    : [{type : mongoose.Schema.Types.ObjectId,
+                            ref : 'section'}],
+    role : {
+        type: String,
+        enum: Object.values(Roles),
+    }
+
 });
+
+Object.assign(UserSchema.statics, {Roles});
 
 UserSchema.pre('save', function(next) {
     var user = this;
@@ -63,6 +78,26 @@ UserSchema.pre('save', function(next) {
 });
 
 
+UserSchema.pre('save', function(next) {
+    var user = this;
+
+    var err = new Error('User pre save error : Duplication in enrolledSections.' +
+        'Student already registered with this section');
+
+    let tempSet = new Set(user.enrolledSections.map(enrolledSection=>{
+        return enrolledSection.toString() }));
+
+
+        if (tempSet.size !== user.enrolledSections.length)
+        {
+            console.log(err)
+            next(err)
+
+        }
+    next();
+});
+
+
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
@@ -71,7 +106,11 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
     });
 };
 
-
+UserSchema.methods.toJSON = function() {
+    var obj = this.toObject();
+    delete obj.password;
+    return obj;
+}
 
 // User.plugin(passportLocalMongoose);
 

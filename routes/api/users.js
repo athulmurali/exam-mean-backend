@@ -16,13 +16,28 @@ const validateToken=(req,res,next)=>{
     jwt.verify(token, keys.jwt.secret, function(err, decoded) {
         if (err) {
             console.log(err)
-            return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+            next(err)
         }
 
 
         else{
             req.decoded = decoded
-            next();
+
+            User.findOne({_id:decoded.id}).
+            then((user)=>{
+                if(user)
+                {
+                    console.log("user from token : ")
+                    console.log(user)
+                    req.user= user
+                    next() }
+                else
+                {
+                err = new Error("No such user")
+                next(err)
+                }
+            }).
+            catch((err)=>{next(err);})
         }
 
     });
@@ -126,7 +141,7 @@ router.post('/logout', (req,res,next) => {
 router.get('/profile', validateToken,(req,res,next) => {
     console.log("Current path:  "  + req.originalUrl)
     console.log("decoded : ", req.decoded)
-    res.send({message : "Profile accessed!"})
+    res.send(req.user)
 })
 
 
@@ -136,15 +151,38 @@ router.get('/profile', validateToken,(req,res,next) => {
 
 router.put('/profile', validateToken,(req,res,next) => {
     console.log("Current path:  "  + req.originalUrl)
-})
 
+    req.user.set(req.body)
+
+    console.log("user : to be changed as ");
+    console.log(req.user)
+
+    console.log();
+    req.user.save().then((savedUser)=>{
+        console.log("saved user :")
+        console.log(savedUser)
+        return res.send(savedUser)
+    }).catch(err=>res.status(403).send({message : err.toString()}))
+
+
+})
 
 
 // DELETE
 // /api/profile
 // Removes the profile of the currently logged in user
-router.delete('/profile', validateToken,(req,res,next) => {
+router.delete('/profile', validateToken,(err,req,res,next) => {
+
     console.log("Current path:  "  + req.originalUrl)
+    console.log("attempting  : remove user ")
+
+    if(err) {return res.status(403).send({message : err.toString()})}
+
+    return req.user.remove().
+    then((result)=>{
+        if(result) console.log(result)
+    }).
+    catch(err=>{res.status(403).send({message : err.toString()})})
 })
 
 
