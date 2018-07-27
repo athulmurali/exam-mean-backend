@@ -16,8 +16,10 @@ var indexRouter     = require('./routes/index');
 var usersRouter     = require('./routes/users');
 var coursesRouter   = require('./routes/courses')
 
-var app = express();
+var cors = require('cors')
 
+var app = express()
+app.use(cors())
 
 mongoose.connect(keys.mongo.url,{ useNewUrlParser: true } ,()=>{
     console.log("mongoose : connect success")
