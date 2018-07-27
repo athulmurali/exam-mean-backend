@@ -5,14 +5,9 @@ var Course =  mongoose.Schema({
     courseId: {
         type: Number,
         index: true,
-        required: [true, 'course id is required']
+        required: [true, 'course id is required'],
+        unique: true
     },
-
-    totalSeats :  {
-        type    : Number,
-        required: [true, 'Total number of seats  is required']
-    },
-
     sections : [
         {
             type : mongoose.Schema.Types.ObjectId,
@@ -20,9 +15,6 @@ var Course =  mongoose.Schema({
         }
     ],
 
-    enrolledStudents : {
-        type : [Number]
-    }
 });
 
 // User.plugin(passportLocalMongoose);

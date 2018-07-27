@@ -58,8 +58,6 @@ router.post('/course/:courseId/section', validateCourseId,(req,res,next) => {
 
     console.log("Current path:  "  + req.originalUrl)
 
-
-
     new Section(req.body).save().then(newSection=>{
         if (newSection)
         {
@@ -68,7 +66,9 @@ router.post('/course/:courseId/section', validateCourseId,(req,res,next) => {
             editedCourse.sections.push(newSection._id);
             editedCourse.save()
                 .then((editedCourse)=>{
-                    res.send(editedCourse)
+                    console.log("section added to course successfully")
+                    console.log(editedCourse)
+                    res.send(newSection)
                 })
                 .catch((err)=>{
                 console.log("Error :...")
@@ -105,11 +105,11 @@ router.get('/course/:courseId/section', validateCourseId,(req,res,next) => {
         console.log("Current path:  " + req.originalUrl)
 
         // Find and populate
-        Course.find({courseId: req.course.courseId}).populate('sections').exec(function (err, populatedCourses ){
+        Course.findOne({courseId: req.course.courseId}).populate('sections').exec(function (err, populatedCourses ){
 
             if (!err)
-            {   console.log(JSON.stringify(populatedCourses));
-               res.send(populatedCourses)
+            {   console.log(populatedCourses);
+               res.send(populatedCourses.sections)
             }
 
             else{
