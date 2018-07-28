@@ -4,44 +4,12 @@ const User = require('../../models/user')
 const keys = require('../../config/keys')
 
 var express = require('express');
+const validateToken = require("../../middlewares/auth").validateToken;
 var router = express.Router();
 console.log("loading api/users")
 
 
 
-const validateToken=(req,res,next)=>{
-    var token = req.headers['x-access-token'];
-    if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
-
-    jwt.verify(token, keys.jwt.secret, function(err, decoded) {
-        if (err) {
-            console.log(err)
-            next(err)
-        }
-
-
-        else{
-            req.decoded = decoded
-
-            User.findOne({_id:decoded.id}).
-            then((user)=>{
-                if(user)
-                {
-                    console.log("user from token : ")
-                    console.log(user)
-                    req.user= user
-                    next() }
-                else
-                {
-                err = new Error("No such user")
-                next(err)
-                }
-            }).
-            catch((err)=>{next(err);})
-        }
-
-    });
-}
 
 // POST
 // /api/register
@@ -50,33 +18,28 @@ router.post('/register',(req,res,next)=>{
 
     console.log(req.body)
 
-    var currentUser = req.body
+    const currentUser = req.body
 
-    User.findOne(   {$or:[   {_id: "5b562f1a9bdf5108d8c4cb1e"},
-            {_id: "5b562f1a9bdf5108d8c4cb1d"}]}
-    ).then((receivedUser) => {
-        if (receivedUser) {
-            console.log("user already exists ! ");
-        }
+    console.log("attempting to create new user and save. ")
+    console.log(currentUser)
+    new User(currentUser).save().
+    then((newUser) => {
+        console.log("newUser created ")
+        console.log(newUser)
+        // res.send(newUser);
 
-        else {
+        var token = jwt.sign({ id: newUser._id }, keys.jwt.secret, {
+            expiresIn: 24*60*60*1000 // expires in 24 hours
+        });
+        res.status(200).send({ auth: true, token: token });
+        // res.send(user)
 
-            console.log("attempting to create new user and save. ")
-            console.log(currentUser)
-            new User(currentUser).save().then((newUser) => {
-                console.log("newUser created ")
-                console.log(newUser)
-                res.send(newUser);
-            }).catch((err)=>{
-                console.log("Error :...")
-                console.log(err)
-                res.status(409).send({message : err.toString()})
+
+    }).catch((err)=>{
+        console.log("Error :...")
+        console.log(err)
+        res.status(409).send(err)
             })
-        }
-    })
-
-
-
 })
 
 
@@ -139,9 +102,12 @@ router.post('/logout', (req,res,next) => {
 // Retrieves the profile of the currently logged in user
 
 router.get('/profile', validateToken,(req,res,next) => {
+
+
     console.log("Current path:  "  + req.originalUrl)
-    console.log("decoded : ", req.decoded)
+    console.log("decoded : ",   req.decoded)
     res.send(req.user)
+
 })
 
 
@@ -171,20 +137,38 @@ router.put('/profile', validateToken,(req,res,next) => {
 // DELETE
 // /api/profile
 // Removes the profile of the currently logged in user
-router.delete('/profile', validateToken,(err,req,res,next) => {
+router.delete('/profile', validateToken,(req,res,next) => {
 
     console.log("Current path:  "  + req.originalUrl)
     console.log("attempting  : remove user ")
 
-    if(err) {return res.status(403).send({message : err.toString()})}
 
-    return req.user.remove().
-    then((result)=>{
-        if(result) console.log(result)
-    }).
-    catch(err=>{res.status(403).send({message : err.toString()})})
+        req.user.remove().
+        then((result)=>{
+            if(result) console.log(result)
+            res.send(result);
+        }).
+        catch(err=>{res.status(403).send({message : err.toString()})})
+
 })
 
 
+
+// GET
+// isUserIdTaken
+router.get('/isUserIdAvailable/:username',(req,res,next)=>{
+
+    console.log("username check: " + req.params.username)
+    User.findOne({username: req.params.username}).then(user=>{
+        if(user){
+            return res.status(409).send({error : "Already taken!"})
+
+        }
+        else{
+            return res.send({message : "available"})
+        }
+    })
+
+})
 
 module.exports = router;

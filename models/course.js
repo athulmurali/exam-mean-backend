@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 
-const Section = require('./section')
 var Course =  mongoose.Schema({
     courseId: {
         type: Number,

@@ -82,16 +82,6 @@ router.post('/course/:courseId/section', validateCourseId,(req,res,next) => {
         res.status(403).send({message : err.toString()})
     })
 
-
-
-
-
-    // res.send({message : "route found success!"})
-
-
-
-
-
 })
 
 
@@ -109,7 +99,7 @@ router.get('/course/:courseId/section', validateCourseId,(req,res,next) => {
 
             if (!err)
             {   console.log(populatedCourses);
-               res.send(populatedCourses.sections)
+               return res.send(populatedCourses.sections)
             }
 
             else{
@@ -164,13 +154,12 @@ router.put('/section/:sectionId', validateSectionId,(req,res,next) => {
 // DELETE
 // /api/section/:sectionId
 // Removes a section
-router.delete('/course/:courseId/section/:sectionId',  (req,res,next) => {
+router.delete('/course/:courseId/section/:sectionId', validateCourseId,validateSectionId,(req,res,next) => {
 
 
-    const  sectionId = parseInt(req.params.sectionId)
-    console.log(sectionId)
-
-    Section.remove({_id : sectionId}).then((result)=>{
+    const section = req.section;
+    section.remove().then((result)=>{
+        console.log("in Section remove result ")
         console.log(result)
         res.send(result)
     }).catch((err)=>{
@@ -179,9 +168,6 @@ router.delete('/course/:courseId/section/:sectionId',  (req,res,next) => {
         res.status(403).send({message : err.toString()})
     })
 
-
-    console.log("Current path:  "  + req.originalUrl)
-    res.send({message : "route found success!"})
 
 })
 

@@ -98,6 +98,20 @@ UserSchema.pre('save', function(next) {
 });
 
 
+UserSchema.methods.removeSectionId= function(sectionIdToUnroll,cb){
+
+    console.log("UserSchema.methods.removeSectionId:......")
+    const user = this;
+    let unrolledSectionList = user.enrolledSections.filter((enrolledSectionId)=>{
+        console.log(enrolledSectionId.toString() != sectionIdToUnroll.toString())
+        return enrolledSectionId.toString() != sectionIdToUnroll.toString()
+    })
+    console.log('unrolled list : ')
+    console.log(unrolledSectionList)
+    user.enrolledSections =  unrolledSectionList;
+    user.save().then(result => cb(result)).catch(err=>cb(err));
+
+}
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {

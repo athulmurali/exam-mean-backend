@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const studentModel = require('../../models/user')
+const userModel = require('../../models/user')
 const Section = require('../../models/section')
 
 
@@ -9,12 +9,12 @@ const validateStudent=(req,res,next)=>{
 
     const studentId = req.params.sid;
 
-    studentModel.findOne( {username : studentId}).then((student)=>{
+    userModel.findOne( {username : studentId}).then((student)=>{
 
 
         console.log("finding student by Id ");
         console.log(student)
-        req.student = student;
+        req.user = student;
         if(student) next()
         else res.status(403).send({message : "studentId validation error"})
     })
@@ -55,7 +55,7 @@ router.post('/:sid/section/:sectionId',
     console.log(req.originalUrl)
 
 
-    var student = req.student;
+    var student = req.user;
     var section = req.section;
 
 
@@ -92,7 +92,7 @@ router.get('/:sid/section',
     (req,res,next)=>{
     console.log(req.originalUrl)
 
-    const student = req.student;
+    const student = req.user;
 
     res.status(501).send({enrolledSections : student.enrolledSections})
 })
@@ -105,7 +105,7 @@ router.get('/:sid/section',
 router.delete('/:sid/section/:sectionId',validateStudent,validateSectionId,(req,res,next)=>{
     console.log(req.originalUrl)
     const sectionId = req.section._id
-    const student = req.student;
+    const student = req.user;
     const section = req.section;
 
     const tempSectionList = student.enrolledSections
@@ -114,30 +114,61 @@ router.delete('/:sid/section/:sectionId',validateStudent,validateSectionId,(req,
     console.log("tempSectionList")
     console.log(tempSectionList)
 
-    const filteredSectionList = tempSectionList.
-    filter(tempSectionId=>{return tempSectionId.toString() != sectionId.toString() } )
-    console.log("filtered list")
-    console.log(filteredSectionList)
-
-    student.enrolledSections = filteredSectionList
-    student.save().then((student)=>{
-        console.log(student)
-        section.unenrollStudent(student._id,(err,savedSection)=>{
-            if(err)
-            {
-                res.status(403).send({message :err.toString()})
-            }
-            else{
-                console.log(savedSection)
-                console.log(student)
-
-                res.status(200).send({student})
 
 
-            }
+    student.removeSectionId(sectionId, (result)=>{
+        if(result)
+        {
+            console.log(result)
+            section.unenrollStudent(student._id,(err,savedSection)=>{
+                if(err)
+                {
+                    res.status(403).send({message :err.toString()})
+                }
+                else{
+                    console.log(savedSection)
+                    console.log(student)
 
-        })
+                    res.status(200).send({student})
+
+
+                }
+
+            })
+        }
+        else {
+            res.status(403).send({message :result.toString()})
+        }
+
     })
+
+
+
+    //
+    // const filteredSectionList = tempSectionList.
+    // filter(tempSectionId=>{return tempSectionId.toString() != sectionId.toString() } )
+    // console.log("filtered list")
+    // console.log(filteredSectionList)
+
+    // student.enrolledSections = filteredSectionList
+    // student.save().then((student)=>{
+    //     console.log(student)
+    //     section.unenrollStudent(student._id,(err,savedSection)=>{
+    //         if(err)
+    //         {
+    //             res.status(403).send({message :err.toString()})
+    //         }
+    //         else{
+    //             console.log(savedSection)
+    //             console.log(student)
+    //
+    //             res.status(200).send({student})
+    //
+    //
+    //         }
+    //
+    //     })
+    // })
 
 
 })

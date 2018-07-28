@@ -1,4 +1,6 @@
+
 const mongoose = require('mongoose')
+const UserSchema = require("./user");
 
 var Section =  mongoose.Schema({
     totalSeats : Number,
@@ -16,7 +18,6 @@ var Section =  mongoose.Schema({
 Section.pre('save',function(next){
 
     var section = this;
-
 
     if (!!section.enrolledStudents  && section.enrolledStudents.length > section.totalSeats){
         const error = new Error('No seats left! Cannot enroll  in this section. ')
@@ -84,5 +85,35 @@ Section.methods.unenrollStudent = function(studentId, next) {
 };
 
 
+Section.pre('remove',function(next){
+    console.log("Pre remove - section ")
+    const section = this;
+    this.enrolledStudents.map((enrolledStudentId)=>{
+
+        UserSchema.findById(enrolledStudentId).then((user)=>{
+            if(user)
+            {
+                console.log("user found! ")
+                user.removeSectionId((section._id) , (result)=>{
+                    if(result)
+                    {
+                        console.log("removed Section id from user: " + user._id)
+                        console.log(result)
+                    }
+
+
+
+
+
+                })
+            }
+
+            return null;
+        })
+
+    })
+
+    next();
+})
 
 module.exports = mongoose.model('section', Section);
