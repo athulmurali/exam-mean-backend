@@ -11,8 +11,8 @@ const validateStudent=(req,res,next)=>{
 
     const studentId = req.params.sid;
 
-    userModel.findOne( {_id : studentId}).then((student)=>{
-
+    console.log(studentId);
+    userModel.findById(studentId).then((student)=>{
 
         console.log("finding student by Id ");
         console.log(student)
