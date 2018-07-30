@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const UserSchema = require("./user");
 
 var Section =  mongoose.Schema({
+    courseId: Number,
     totalSeats : Number,
     title : {
         type : String
