@@ -42,6 +42,9 @@ const UserSchema = new Schema({
             type    : Number,
             required: [true, 'phone number is required']
     },
+    address: {
+        type: String
+    },
     dob : Date,
     // timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 
