@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const userModel = require('../../models/user')
+const Course = require('../../models/user')
+
 const Section = require('../../models/section')
 
 
@@ -92,9 +94,24 @@ router.get('/:sid/section',
     (req,res,next)=>{
     console.log(req.originalUrl)
 
-    const student = req.user;
 
-    res.status(501).send({enrolledSections : student.enrolledSections})
+    var enrolledSections =[];
+        userModel.findOne({_id: req.user._id}).populate('enrolledSections').exec
+        (function (err, populatedUser ){
+                if(err)
+                {
+                    res.status(403).send(enrolledSections);
+
+                }
+
+               enrolledSections = populatedUser.enrolledSections;
+                res.status(200).send(enrolledSections);
+
+            }
+        )
+
+        console.log(enrolledSections)
+
 })
 
 
