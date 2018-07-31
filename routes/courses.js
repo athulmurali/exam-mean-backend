@@ -13,50 +13,6 @@ router.get('/hello', function(req, res, next) {
 });
 
 
-// to be restricted to admin
-router.post('/', function(req, res, next) {
-
-    const courseId = 100;
-    console.log(req.body)
-
-    const obj = {
-        courseId: courseId,
-        totalSeats: 100,
-        enrolledStudents:[]
-
-    }
-
-    Course.findOne(  {
-        courseId : courseId
-        }
-    ).then((receivedUser) => {
-        if (receivedUser) {
-            console.log("Course already exists ! ");
-            res.status(409);
-            res.send({
-                message : "Error ! Course already exists!"
-            })
-        }
-
-        else {
-
-            console.log("attempting to create new course seats register and save. ")
-            console.log(obj)
-            new Course(obj).save().then((newCourse) => {
-                console.log("newUser created ")
-                console.log(newCourse)
-                res.send(newCourse);
-            }).catch((err)=>{
-                console.log("Error :...")
-                console.log(err)
-
-
-            })
-        }
-    })
-
-
-})
 
 router.put('/', function (req,res,next) {
     // console.log(req.params)

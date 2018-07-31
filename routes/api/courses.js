@@ -85,9 +85,6 @@ router.post('/course/:courseId/section', validateCourseId,(req,res,next) => {
 })
 
 
-
-
-
 // GET
 // /api/course/:courseId/section
 // Retrieves all the sections for a given course
@@ -173,6 +170,46 @@ router.delete('/course/:courseId/section/:sectionId', validateCourseId,validateS
 
 
 
+// to be restricted to admin
+router.post('/course/:courseId', function(req, res, next) {
+
+    const courseId = req.params.courseId
+    console.log(req.body)
+
+    const obj = {
+        courseId: courseId,
+    }
+
+    Course.findOne(  {
+            courseId : courseId
+        }
+    ).then((receivedUser) => {
+        if (receivedUser) {
+            console.log("Course already exists ! ");
+            res.status(409);
+            res.send({
+                error : "Error ! Course already exists!"
+            })
+        }
+
+        else {
+
+            console.log("attempting to create new course seats register and save. ")
+            console.log(obj)
+            new Course(obj).save().then((newCourse) => {
+                console.log("newUser created ")
+                console.log(newCourse)
+                res.send(newCourse);
+            }).catch((err)=>{
+                console.log("Error :...")
+                console.log(err)
+
+
+            })
+        }
+    })
+
+})
 
 
 
